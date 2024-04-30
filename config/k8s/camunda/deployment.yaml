@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: camunda-deployment
+  labels:
+    app: camunda
+spec:
+  selector:
+    matchLabels:
+      app: camunda
+  template:
+    metadata:
+      labels:
+        app: camunda
+    spec:
+      containers:
+        - name: camunda
+          image: camunda/camunda-bpm-platform:latest
+          env:
+            - name: JMX_PROMETHEUS
+              value: 'true'
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 200m
+              memory: 1024Mi
+  replicas: 4

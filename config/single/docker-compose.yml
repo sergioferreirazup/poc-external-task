@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:11-alpine
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=camunda
+      - POSTGRES_PASSWORD=camunda
+      - PGDATA=/data/postgres
+    restart: unless-stopped
+    networks:
+      - camunda-network-single
+
+  camunda-pod:
+    image: camunda/camunda-bpm-platform:7.13.0
+    ports:
+      - 8080:8080
+    environment:
+      - JAVA_OPTS=-Xmx512m
+      - DB_DRIVER=org.postgresql.Driver
+      - DB_URL=jdbc:postgresql://postgres:5432/camunda
+      - DB_USERNAME=camunda
+      - DB_PASSWORD=camunda
+      - WAIT_FOR=postgres:5432
+    depends_on:
+      - postgres
+    networks:
+      - camunda-network-single
+
+networks:
+  camunda-network-single:
+    driver: bridge

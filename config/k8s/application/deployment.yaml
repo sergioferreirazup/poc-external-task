@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: poc-external-task-deployment
+  labels:
+    app: poc-external-task
+spec:
+  selector:
+    matchLabels:
+      app: poc-external-task
+  template:
+    metadata:
+      labels:
+        app: poc-external-task
+    spec:
+      containers:
+        - name: poc-external-task
+          image: "sergioferreirafilho/poc-external-task:2.5"
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: cluster
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 150m
+              memory: 256Mi
+  replicas: 4

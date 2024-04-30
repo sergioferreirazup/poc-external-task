@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:11-alpine
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=camunda
+      - POSTGRES_PASSWORD=camunda
+      - PGDATA=/data/postgres
+    restart: unless-stopped
+    networks:
+      - camunda-network
+
+  camunda-pod-1:
+    image: camunda/camunda-bpm-platform:latest
+    ports:
+      - 8081:8080
+    environment:
+      - JAVA_OPTS=-Xmx512m
+      - DB_DRIVER=org.postgresql.Driver
+      - DB_URL=jdbc:postgresql://postgres:5432/camunda
+      - DB_USERNAME=camunda
+      - DB_PASSWORD=camunda
+      - WAIT_FOR=postgres:5432
+    depends_on:
+      - postgres
+    networks:
+      - camunda-network
+
+  camunda-pod-2:
+    image: camunda/camunda-bpm-platform:latest
+    ports:
+      - 8082:8080
+    environment:
+      - JAVA_OPTS=-Xmx512m
+      - DB_DRIVER=org.postgresql.Driver
+      - DB_URL=jdbc:postgresql://postgres:5432/camunda
+      - DB_USERNAME=camunda
+      - DB_PASSWORD=camunda
+      - WAIT_FOR=postgres:5432
+    depends_on:
+      - camunda-pod-1
+    networks:
+      - camunda-network
+
+  camunda-pod-3:
+    image: camunda/camunda-bpm-platform:latest
+    ports:
+      - 8083:8080
+    environment:
+      - JAVA_OPTS=-Xmx512m
+      - DB_DRIVER=org.postgresql.Driver
+      - DB_URL=jdbc:postgresql://postgres:5432/camunda
+      - DB_USERNAME=camunda
+      - DB_PASSWORD=camunda
+      - WAIT_FOR=postgres:5432
+    depends_on:
+      - camunda-pod-1
+    networks:
+      - camunda-network
+
+  camunda-load-balancer:
+    image: nginx:latest
+    depends_on:
+      - camunda-pod-1
+      - camunda-pod-2
+      - camunda-pod-3
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - camunda-network
+
+networks:
+  camunda-network:
+    driver: bridge

@@ -1,0 +1,18 @@
+---
+startDelaySeconds: 0
+ssl: false
+lowercaseOutputName: false
+lowercaseOutputLabelNames: false
+rules:
+  - pattern: "java.lang:type=Memory"
+    name: jvm_memory_bytes_used
+    labels:
+      area: heap
+    value: value
+  - pattern: 'java.lang:type=OperatingSystem<ProcessCpuLoad>'
+    name: jvm_cpu_usage_ratio
+    value: 'value * 100'
+    type: GAUGE
+    labels:
+      type: "jvm"
+    help: 'JVM Process CPU load'
